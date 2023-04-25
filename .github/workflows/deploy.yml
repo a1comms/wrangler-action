@@ -10,6 +10,28 @@ jobs:
       uses: azohra/shell-linter@v0.3.0
       with:
         path: "entrypoint.sh"
+  build-only:
+    runs-on: ubuntu-latest
+    name: Only build the app
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build app
+        uses: ./
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: "test"
+          publish: false
+          secrets: |
+            SECRET1
+            SECRET2
+          preCommands: echo "*** pre commands ***"
+          postCommands: |
+            echo "*** post commands ***"
+            wrangler build
+            echo "******"
+        env:
+          SECRET1: ${{ secrets.SECRET1 }}
+          SECRET2: ${{ secrets.SECRET2 }}
   publish:
     runs-on: ubuntu-latest
     name: Publish app
@@ -46,3 +68,24 @@ jobs:
         environment: "production"
         wranglerVersion: '1.5.0'
         workingDirectory: 'test'
+  publish_secrets:
+    runs-on: ubuntu-latest
+    name: Publish app with secrets
+    steps:
+      - uses: actions/checkout@v2
+      - name: Publish app
+        uses: ./
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          environment: "production"
+          workingDirectory: "test"
+          secrets: |
+            SECRET1
+            SECRET2
+          preCommands: echo "*** pre command ***"
+          postCommands: |
+            echo "*** post commands ***"
+            echo "******"
+        env:
+          SECRET1: ${{ secrets.SECRET1 }}
+          SECRET2: ${{ secrets.SECRET2 }}
